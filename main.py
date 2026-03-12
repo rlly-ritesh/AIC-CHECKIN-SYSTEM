@@ -15,7 +15,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
-        "https://aic-checkin-system.vercel.app"
+        "https://aic-checkin-system.vercel.app",
+        "https://aic-scanner.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],
