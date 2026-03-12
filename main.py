@@ -63,11 +63,11 @@ def register_participant(payload: dict):
 
     row = {
         "uid": uid,
-        "name": payload.get("name"),
+        "name": payload.get("name") or "",
         "email": email,
-        "phone": payload.get("phone"),
-        "college": payload.get("college"),
-        "role": payload.get("role"),
+        "phone": payload.get("phone") or "",
+        "college": payload.get("college") or "",
+        "role": payload.get("role") or "",
         "checked_in": False,
         "created_at": datetime.utcnow().isoformat(),
     }
