@@ -69,7 +69,7 @@ def register_participant(payload: dict, background_tasks: BackgroundTasks):
         "email": email,
         "phone": payload.get("phone") or "",
         "college": payload.get("college") or "",
-        "role": payload.get("role") or "",
+        "role": (payload.get("role") or "participant").lower(),
         "checked_in": False,
         "created_at": datetime.utcnow().isoformat(),
     }
