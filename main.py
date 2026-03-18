@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from datetime import datetime
 
 from supabase_client import supabase
@@ -28,9 +29,124 @@ app.add_middleware(
 # BASIC HEALTH CHECK
 # --------------------------------------------------
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    return {"status": "Backend running (Supabase)"}
+    return """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AIC Check-in System</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 48px 56px;
+      text-align: center;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    }
+    .status-dot {
+      width: 14px;
+      height: 14px;
+      background: #22c55e;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      background: #14532d;
+      color: #86efac;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 28px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #f8fafc;
+    }
+    p {
+      color: #94a3b8;
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .endpoints {
+      background: #0f172a;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: left;
+    }
+    .endpoints h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      margin-bottom: 14px;
+    }
+    .endpoint {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+    .method {
+      font-weight: 700;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 42px;
+      text-align: center;
+    }
+    .get  { background: #1d4ed8; color: #bfdbfe; }
+    .post { background: #065f46; color: #a7f3d0; }
+    .path { color: #cbd5e1; font-family: monospace; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge"><span class="status-dot"></span>Backend is Running</div>
+    <h1>AIC Check-in System</h1>
+    <p>The backend server is up and connected to Supabase. All API endpoints are ready.</p>
+    <div class="endpoints">
+      <h3>Available Endpoints</h3>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/test-db</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/stats</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/register</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/login</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/scan</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/checkin</span></div>
+    </div>
+  </div>
+</body>
+</html>
+"""
 
 
 @app.get("/test-db")
