@@ -92,10 +92,23 @@ AIC SOA Foundation
     try:
         # Connect to dynamic SMTP server (usually port 587 requires STARTTLS)
         with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            if SMTP_PORT == 587:
+            if SMTP_PORT in (587, 2525):
                 server.starttls()
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
             server.send_message(msg)
-            print(f"Successfully sent QR email to {to_email}")
+            print(f"Successfully sent QR email to {to_email} on port {SMTP_PORT}")
+            
+    except OSError as oe:
+        print(f"Port {SMTP_PORT} timed out/failed (likely blocked by Render firewall). Retrying on fallback port 2525...")
+        try:
+            # Render blocks port 25, 465, and 587 on their Free Tier. Port 2525 is often unfiltered.
+            with smtplib.SMTP(SMTP_SERVER, 2525) as server:
+                server.starttls()
+                server.login(SMTP_EMAIL, SMTP_PASSWORD)
+                server.send_message(msg)
+                print(f"Successfully sent QR email to {to_email} on fallback port 2525")
+        except Exception as e2:
+            print(f"Fallback port 2525 also failed for {to_email}: {e2}")
+            
     except Exception as e:
         print(f"Failed to send email to {to_email}: {e}")
