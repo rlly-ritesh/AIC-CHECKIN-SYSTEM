@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from datetime import datetime
 
@@ -7,6 +7,7 @@ from utils import generate_uid
 from auth_utils import verify_password
 from jwt_utils import create_access_token
 from auth_dependency import get_current_user, require_role
+from email_service import send_qr_email
 
 
 app = FastAPI(title="AIC Check-in System")
@@ -39,12 +40,13 @@ def test_db():
 
 
 # --------------------------------------------------
-# REGISTRATION (USED BY GOOGLE FORM)
+# REGISTRATION (USED BY GOOGLE FORM OR API)
 # --------------------------------------------------
 
 @app.post("/register")
-def register_participant(payload: dict):
+def register_participant(payload: dict, background_tasks: BackgroundTasks):
     email = payload.get("email")
+    name = payload.get("name") or ""
 
     if not email:
         raise HTTPException(status_code=400, detail="Email is required")
@@ -63,7 +65,7 @@ def register_participant(payload: dict):
 
     row = {
         "uid": uid,
-        "name": payload.get("name") or "",
+        "name": name,
         "email": email,
         "phone": payload.get("phone") or "",
         "college": payload.get("college") or "",
@@ -73,11 +75,16 @@ def register_participant(payload: dict):
     }
 
     supabase.table("participants").insert(row).execute()
+    
+    # ---------------------------------------------------
+    # SEND EMAIL IN THE BACKGROUND
+    # ---------------------------------------------------
+    background_tasks.add_task(send_qr_email, email, name, uid)
 
     return {
         "success": True,
         "uid": uid,
-        "message": "Registration successful. QR will be sent via email."
+        "message": "Registration successful. QR is being sent via email."
     }
 
 
