@@ -74,18 +74,24 @@ def register_participant(payload: dict, background_tasks: BackgroundTasks):
         "created_at": datetime.utcnow().isoformat(),
     }
 
-    supabase.table("participants").insert(row).execute()
-    
-    # ---------------------------------------------------
-    # SEND EMAIL IN THE BACKGROUND
-    # ---------------------------------------------------
-    background_tasks.add_task(send_qr_email, email, name, uid)
+    try:
+        supabase.table("participants").insert(row).execute()
+        
+        # ---------------------------------------------------
+        # SEND EMAIL IN THE BACKGROUND
+        # ---------------------------------------------------
+        background_tasks.add_task(send_qr_email, email, name, uid)
 
-    return {
-        "success": True,
-        "uid": uid,
-        "message": "Registration successful. QR is being sent via email."
-    }
+        return {
+            "success": True,
+            "uid": uid,
+            "message": "Registration successful. QR is being sent via email."
+        }
+    except Exception as e:
+        import traceback
+        error_info = traceback.format_exc()
+        print(f"CRITICAL REGISTRATION ERROR: {error_info}")
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)}")
 
 
 # --------------------------------------------------
