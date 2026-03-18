@@ -5,13 +5,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY backend/requirements.txt .
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY backend/ .
-
-# Copy .env file if it exists
-COPY backend/.env .env 2>/dev/null || true
+COPY . .
 
 EXPOSE 8000
 
